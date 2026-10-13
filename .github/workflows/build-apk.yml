@@ -20,12 +20,12 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-      - name: Grant execute permission for gradlew
+      - name: Create Gradle Wrapper
         run: |
-          if [ ! -f gradlew ]; then
-            gradle wrapper --gradle-version 8.9
-          fi
+          gradle wrapper --gradle-version 8.9
           chmod +x gradlew
 
       - name: Build debug APK
@@ -36,3 +36,4 @@ jobs:
         with:
           name: AnikuraTV-debug
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
