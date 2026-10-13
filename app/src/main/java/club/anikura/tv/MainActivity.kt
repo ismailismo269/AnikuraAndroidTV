@@ -104,7 +104,7 @@ class MainActivity : Activity() {
                 }
 
                 override fun onConsoleMessage(m: android.webkit.ConsoleMessage): Boolean {
-                    Log.d(tag, "console[${m.messageLevel()}] ${m.message()} (${m.sourceId()}:${m.lineNumber()})")
+                    Log.d(tag, "console[" + m.messageLevel() + "] " + m.message() + " (" + m.sourceId() + ":" + m.lineNumber() + ")")
                     return true
                 }
             }
@@ -112,19 +112,19 @@ class MainActivity : Activity() {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val url = request?.url ?: return false
-                    Log.d(tag, "nav -> $url")
+                    Log.d(tag, "nav -> " + url.toString())
                     // Keep website navigation inside the app. Non-http(s) schemes are not launched.
                     return url.scheme !in listOf("http", "https")
                 }
 
                 override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
                     super.onPageStarted(view, url, favicon)
-                    Log.d(tag, "pageStarted $url")
+                    Log.d(tag, "pageStarted " + (url ?: "null"))
                 }
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    Log.d(tag, "pageFinished $url")
+                    Log.d(tag, "pageFinished " + (url ?: "null"))
                     // NOTE: history is intentionally NOT cleared here (the old clearHistory()
                     // broke the site's own back/close handling).
                     injectTvNavigation()
@@ -179,7 +179,7 @@ class MainActivity : Activity() {
             setHintTextColor(Color.LTGRAY)
             setTextColor(Color.WHITE)
             textSize = 18f
-            singleLine = true
+            isSingleLine = true
             isFocusable = true
             isFocusableInTouchMode = true
             setPadding(dp(14), dp(10), dp(14), dp(10))
