@@ -35,7 +35,7 @@ class MainActivity : Activity() {
     private var searchOverlay: View? = null
     private var searchInput: EditText? = null
     private val homeUrl = "https://anikura.club/"
-    private val tag = "AnikuraTV"
+    private val logTag = "AnikuraTV"
 
     private var lastBackAtHome = 0L
     private var lastBackHandledAt = 0L
@@ -43,7 +43,7 @@ class MainActivity : Activity() {
     /** Lets the injected script write to logcat: `adb logcat -s AnikuraTV` */
     private inner class Bridge {
         @JavascriptInterface
-        fun log(msg: String) { Log.d(tag, "js: $msg") }
+        fun log(msg: String) { Log.d(logTag, "js: $msg") }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface")
@@ -104,7 +104,8 @@ class MainActivity : Activity() {
                 }
 
                 override fun onConsoleMessage(m: android.webkit.ConsoleMessage): Boolean {
-                    Log.d(tag, "console[" + m.messageLevel() + "] " + m.message() + " (" + m.sourceId() + ":" + m.lineNumber() + ")")
+                    val msg: String = "console[" + m.messageLevel().toString() + "] " + m.message() + " (" + m.sourceId() + ":" + m.lineNumber() + ")"
+                    Log.d(logTag, msg)
                     return true
                 }
             }
@@ -112,19 +113,22 @@ class MainActivity : Activity() {
             webViewClient = object : WebViewClient() {
                 override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                     val url = request?.url ?: return false
-                    Log.d(tag, "nav -> " + url.toString())
+                    val navMsg: String = "nav -> " + url.toString()
+                    Log.d(logTag, navMsg)
                     // Keep website navigation inside the app. Non-http(s) schemes are not launched.
                     return url.scheme !in listOf("http", "https")
                 }
 
                 override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
                     super.onPageStarted(view, url, favicon)
-                    Log.d(tag, "pageStarted " + (url ?: "null"))
+                    val startMsg: String = "pageStarted " + (url ?: "null")
+                    Log.d(logTag, startMsg)
                 }
 
                 override fun onPageFinished(view: WebView?, url: String?) {
                     super.onPageFinished(view, url)
-                    Log.d(tag, "pageFinished " + (url ?: "null"))
+                    val finishMsg: String = "pageFinished " + (url ?: "null")
+                    Log.d(logTag, finishMsg)
                     // NOTE: history is intentionally NOT cleared here (the old clearHistory()
                     // broke the site's own back/close handling).
                     injectTvNavigation()
@@ -391,7 +395,7 @@ class MainActivity : Activity() {
             "(window.__anikuraTv ? window.__anikuraTv.back() : 'no-script')"
         ) { raw ->
             val result = raw?.trim('"') ?: "null"
-            Log.d(tag, "back -> $result")
+            Log.d(logTag, "back -> " + result)
             if (result == "at-home" || result == "no-script" || result == "null") {
                 // Already on the catalog: require a second Back within 2 s to leave the app.
                 val now = SystemClock.elapsedRealtime()
@@ -429,7 +433,7 @@ class MainActivity : Activity() {
                     }
                     webView.evaluateJavascript(
                         "(window.__anikuraTv ? window.__anikuraTv.togglePlay('$mode') : 'no-script')"
-                    ) { Log.d(tag, "media $mode -> $it") }
+                    ) { r -> Log.d(logTag, "media $mode -> " + (r ?: "null")) }
                 }
                 return true // never forwarded as Back or Enter
             }
